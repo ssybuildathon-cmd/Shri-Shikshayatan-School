@@ -53,7 +53,7 @@ position = Vector2(111, 303)
 scale = Vector2(0.7265625, 0.734375)
 texture = ExtResource("2_gr4dr")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=823913111]
+[node name="IncandescentLight2" type="CanvasModulate" parent="." unique_id=823913111]
 color = Color(0.06666667, 0.06666667, 0.101960786, 1)
 
 [node name="IncandescentLight" type="PointLight2D" parent="." unique_id=305505416]

@@ -1,22 +1,21 @@
+
 extends Node2D
 
 # Core State Variables
 var current_time: int = 500 # Represents 05:00 PM
 var room_corrupted: bool = false
 
-# Node References (Auto-assigned at runtime)
-@onready var dialogue_label: Label = $UI/Panel/DialogueLabel
+# Direct Node References
+@onready var dialogue_label: Label = $UI/DialogueLabel
 @onready var ceiling_light: PointLight2D = $IncandescentLight
 @onready var mummy_sprite: Sprite2D = $MummyExhibit/MummySprite
 
 func _ready():
-	# Connect the mouse click signal from the Mummy exhibit
-	$MummyExhibit.input_event.connect(_on_mummy_clicked)
-	
-	# Set initial dialogue state
+	# Set initial dialogue text
 	dialogue_label.text = "05:00 PM — The museum is quiet. The main entrance door behind you has slammed shut."
 
-func _on_mummy_clicked(_viewport, event, _shape_idx):
+func _input(event):
+	# Any left-click advances the exhibit inspection!
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		inspect_mummy()
 
