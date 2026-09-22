@@ -13,10 +13,11 @@ colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
 gradient = SubResource("Gradient_cvnsp")
 width = 256
 height = 256
-fill_from = Vector2(0, 0.5)
+fill = 1
+fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
-[node name="Player" type="CharacterBody2D" unique_id=550239130]
+[node name="Player" type="CharacterBody2D" unique_id=550239130 groups=["Player"]]
 script = ExtResource("1_cvnsp")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1945893911]
