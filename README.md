@@ -1,10 +1,32 @@
 # Shri-Shikshayatan-School
 Genesis 2026 Class: 9-12 Buildathon
-- SETUP: The game is set inside an old, shoddy looking museum that closes at 6pm
-- The player/gamer enters the room but a bit later understands that he/she wont be able to leave easily. They starr exploring the museum, small things around them begin to feel odd.
-- The environment around them slowly changes with movements made by the player. Objects one seen are being shown again,the exhibited items feel different, weird sounds are heard, and the atmosphere gradually becomes more suspicious.
-- At first, the player doubts whether its just their perception or is it really taking place.
-- With increase in time these changes becomes more evident. Initially the movements felt random but now they find a pattern in it, and the player has to figure out that.
-- The closer they get to closing time, the more evident and unpredictable the museum becomes.
-- The games focus is a  psychological horror set up, and suspense, where the player is forced to question the real existence.
-- And then the final changes appears when it's 6pm.
+ESCAPE: THE HOLLOW GALLERY
+SET UP:
+1. THE INTRO SCENE(A video will get played)-
+-The player entered the museum normally looking at the exhibits
+-the player got mesmerized looking at a painting that was hanged
+-the painting was of a person standing in the same place as the player and of the
+same surrounding, the player gets confused
+-the screen glitches, everything blacks out
+- a screen appears where the name of the game, the rules are shown
+-the next interface from the player’s view, and a motion of blinking twice.
+-the player has now entered the game
+2. -The player realize that he\she has been trapped. And to get out they need to solve
+the puzzles.
+3. BACKGROUND
+- Time is ticking from 5 to 6
+- At 6 the museum closes
+- Lights flicker
+- With every WRONG ANSWER SELECTION IN THE PUZZLE, TIME JUMPS
+BY 10 MINS
+- In total the player get 5 chances. If all chances are gone the player needs to
+replay from start
+- As the puzzles get fulfilled we get some items(a announcement is made that
+the items are received and collected)
+- Those items are required for further steps
+- The objects collected is put into a exhibit.
+4. If the player is able to finish the game in time before 6 or has the lives left
+- They will be able to get out
+5. - A video is played which again shows a glitch and the person returns to the first
+interface where everything feels normal.
+- the player realizes that they were in a time hole.
