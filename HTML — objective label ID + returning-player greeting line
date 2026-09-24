@@ -1,0 +1,5 @@
+ <div id="objectivePanel">
+-  <h3>Objective</h3>
++  <h3 id="objectiveLabel">Objective</h3>
+   <div id="objectiveText">Explore the gallery. Golden glowing beacons mark exhibits you can interact with.</div>
+ </div>
