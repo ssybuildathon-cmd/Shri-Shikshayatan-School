@@ -1,0 +1,22 @@
+ const clockTimes = ["5:00 PM","5:10 PM","5:20 PM","5:30 PM","5:40 PM","5:50 PM","6:00 PM"];
+//// ---------- RETURNING-PLAYER MEMORY (persists across restarts, Hades-style) ----------
+function getRunMemory(){
+  try{ return JSON.parse(localStorage.getItem('hollowGalleryMemory')||'{"attempts":0,"deaths":0,"escapes":0}'); }
+  catch(e){ return {attempts:0,deaths:0,escapes:0}; }
+}
+function saveRunMemory(mem){ try{ localStorage.setItem('hollowGalleryMemory', JSON.stringify(mem)); }catch(e){} }
+function showReturnGreeting(){
+  const el = document.getElementById('returnGreeting');
+  if(!el) return;
+  const mem = getRunMemory();
+  if(mem.attempts <= 0){ el.textContent = ""; return; }
+  if(mem.escapes > 0){
+    el.textContent = "You've escaped before. That won't make this time easier.";
+  } else if(mem.deaths >= 3){
+    el.textContent = `Attempt ${mem.attempts+1}. The portrait has seen your face ${mem.deaths} times now.`;
+  } else if(mem.deaths > 0){
+    el.textContent = `Attempt ${mem.attempts+1}. You didn't make it out last time.`;
+  } else {
+    el.textContent = `Attempt ${mem.attempts+1}.`;
+  }
+}
