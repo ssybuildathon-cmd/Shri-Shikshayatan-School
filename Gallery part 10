@@ -1,0 +1,1412 @@
+0,Math.random()*500); pc.lineTo(Math.random()*360,Math.random()*500); pc.stroke(); } pc.globalAlpha=1;
+const portraitTexture = new THREE.CanvasTexture(portraitCanvas); portraitTexture.colorSpace=THREE.SRGBColorSpace; portraitTexture.anisotropy=4;
+const canvasPaint = new THREE.Mesh(new THREE.PlaneGeometry(1.05,1.45), new THREE.MeshStandardMaterial({map:portraitTexture, roughness:.94, metalness:0}));
+canvasPaint.position.z = 0.05;
+portraitGroup.add(frame, canvasPaint);
+// Hidden emissive eyes appear only during the existing portrait glitch.
+const portraitEyeMat = new THREE.MeshStandardMaterial({color:0x220000, emissive:0xff1800, emissiveIntensity:0, roughness:.3});
+const portraitEyeL = new THREE.Mesh(new THREE.SphereGeometry(.045,12,12), portraitEyeMat);
+const portraitEyeR = portraitEyeL.clone();
+portraitEyeL.position.set(-.16,.18,.075); portraitEyeR.position.set(.16,.18,.075);
+const portraitEyeGlow = new THREE.PointLight(0xff1600,0,1.6,2); portraitEyeGlow.position.set(0,.18,.12);
+portraitEyeL.visible = portraitEyeR.visible = portraitEyeGlow.visible = false;
+portraitGroup.add(portraitEyeL,portraitEyeR,portraitEyeGlow);
+const portraitEyes = [portraitEyeL, portraitEyeR];
+portraitGroup.position.set(-2.2, 2.4, -10.0);
+const portraitPlacard = makePlacard("FOUNDER'S PORTRAIT", "The museum's first curator");
+portraitPlacard.position.set(0, -1.1, 0.3);
+portraitGroup.add(portraitPlacard);
+scene.add(portraitGroup);
+registerStation(frame, "The Portrait", "[E] Look closer",
+  ()=> openPuzzle_Portrait(), portraitGroup);
+
+// figure that "steps out" during the portrait glitch (hidden until triggered)
+const figureGroup = new THREE.Group();
+const figBody = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.3,1.5,8), new THREE.MeshStandardMaterial({color:0x141014}));
+const figHead = new THREE.Mesh(new THREE.SphereGeometry(0.18,8,8), new THREE.MeshStandardMaterial({color:0xe6d9c8}));
+figHead.position.y = 0.9;
+
+// Add menacing arms and hands
+function createFigureArm(side){
+  const armGroup = new THREE.Group();
+  const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.08,0.5,6), new THREE.MeshStandardMaterial({color:0x1a1410}));
+  upperArm.position.set(0, 0.3, 0);
+  upperArm.rotation.z = side * 0.5;
+  
+  const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.07,0.5,6), new THREE.MeshStandardMaterial({color:0x0f0a08}));
+  forearm.position.set(side*0.15, -0.35, 0);
+  forearm.rotation.z = side * 0.6;
+  
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.08,6,6), new THREE.MeshStandardMaterial({color:0xe0ccb0}));
+  hand.scale.set(1.3, 1.4, 0.9);
+  hand.position.set(side*0.35, -0.7, 0);
+  hand.userData.baseY = hand.position.y;
+  hand.userData.side = side;
+  
+  // Add finger-like claws
+  for(let i=0; i<3; i++){
+    const claw = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.15, 4), new THREE.MeshStandardMaterial({color:0xd4b59a}));
+    claw.position.set(side*0.28 + i*0.04*side, -0.75, -0.05 + i*0.03);
+    claw.rotation.z = side * (Math.PI/3 + i*0.2);
+    hand.add(claw);
+  }
+  
+  armGroup.add(upperArm, forearm, hand);
+  armGroup.userData.hand = hand;
+  armGroup.userData.side = side;
+  return armGroup;
+}
+
+const figLeftArm = createFigureArm(-1);
+figLeftArm.position.set(-0.28, 0.4, 0);
+const figRightArm = createFigureArm(1);
+figRightArm.position.set(0.28, 0.4, 0);
+
+figureGroup.add(figBody, figHead, figLeftArm, figRightArm);
+figureGroup.position.set(-2.2, 1.1, -9.3);
+figureGroup.visible = false;
+figureGroup.userData.arms = [figLeftArm, figRightArm];
+scene.add(figureGroup);
+
+// ---- 6. Vault Door ----
+const vaultGroup = new THREE.Group();
+const vaultDoor = new THREE.Mesh(new THREE.BoxGeometry(1.8,2.6,0.3), new THREE.MeshStandardMaterial({color:0x50473a, metalness:0.55, roughness:0.45}));
+vaultDoor.position.y = 1.3;
+const vaultWheel = new THREE.Mesh(new THREE.TorusGeometry(0.28,0.06,8,16), new THREE.MeshStandardMaterial({color:0xa9863f, metalness:0.7}));
+vaultWheel.position.set(0,1.3,0.2);
+vaultGroup.add(vaultDoor, vaultWheel);
+vaultGroup.position.set(5.5, 0, -9.9);
+const vaultPlacard = makePlacard("SEALED VAULT", "Requires the Brass Key to open");
+vaultPlacard.position.set(1.1, 0, 0.3);
+vaultPlacard.rotation.y = -0.5;
+vaultGroup.add(vaultPlacard);
+scene.add(vaultGroup);
+registerStation(vaultDoor, "The Vault", "[E] Open the vault",
+  ()=> openPuzzle_Vault(), vaultGroup);
+
+// ---- 7. The Mummy (bonus antique — tall, looming, atmospheric, no time cost) ----
+const mummyGroup = new THREE.Group();
+const mummyPedestal = makePedestal(0.58);
+mummyPedestal.position.y = 0.275;
+
+// Sarcophagus case - back panel
+const sarcophagusBack = new THREE.Mesh(new THREE.BoxGeometry(1.3,3.7,0.4), new THREE.MeshStandardMaterial({color:0x241a0d, roughness:0.65}));
+sarcophagusBack.position.y = 2.1;
+sarcophagusBack.position.z = -0.3;
+
+// Sarcophagus case - front glass pane (was a solid opaque panel that fully
+// hid the mummy inside; now an actual see-through glass front, framed by
+// thin wood edges, matching the Display Cabinet's glass elsewhere in the room)
+const sarcoFrontFrameMat = new THREE.MeshStandardMaterial({color:0x3a2a1a, roughness:0.65});
+const sarcoFrameL = new THREE.Mesh(new THREE.BoxGeometry(0.09,3.7,0.08), sarcoFrontFrameMat);
+sarcoFrameL.position.set(-0.6, 2.1, 0.32);
+const sarcoFrameR = sarcoFrameL.clone(); sarcoFrameR.position.x = 0.6;
+const sarcoFrameTop = new THREE.Mesh(new THREE.BoxGeometry(1.3,0.09,0.08), sarcoFrontFrameMat);
+sarcoFrameTop.position.set(0, 3.93, 0.32);
+const sarcoFront = new THREE.Mesh(new THREE.PlaneGeometry(1.16,3.6), museumGlassMaterial(.17));
+sarcoFront.position.set(0, 2.1, 0.33);
+
+// Sarcophagus case - side panels
+const sarcoSide = (sign) => {
+  const side = new THREE.Mesh(new THREE.BoxGeometry(0.08,3.7,0.4), new THREE.MeshStandardMaterial({color:0x2a1a0a, roughness:0.65}));
+  side.position.set(sign*0.66, 2.1, 0);
+  return side;
+};
+
+// Sarcophagus bottom
+const sarcoBase = new THREE.Mesh(new THREE.BoxGeometry(1.3,0.15,0.4), new THREE.MeshStandardMaterial({color:0x1a0a02, roughness:0.7}));
+sarcoBase.position.set(0, 0.3, 0);
+
+// Sarcophagus lid - rotated to be half-open
+const sarcoLid = new THREE.Mesh(new THREE.BoxGeometry(1.3,0.12,0.4), new THREE.MeshStandardMaterial({color:0x3a2a1a, metalness:0.4, roughness:0.5}));
+sarcoLid.position.y = 3.85;
+sarcoLid.position.z = 0;
+sarcoLid.rotation.x = -0.6; // Half-open angle (about 35 degrees)
+sarcoLid.rotation.z = 0;
+
+const lidDeco = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.35), new THREE.MeshStandardMaterial({color:0x8a7a5a}));
+lidDeco.position.set(0, 3.9, 0.25);
+lidDeco.rotation.x = -0.6;
+
+const sarcoTrim = new THREE.Mesh(new THREE.BoxGeometry(1.36,0.08,0.46), new THREE.MeshStandardMaterial({color:0xa9863f, metalness:0.6}));
+sarcoTrim.position.set(0, 3.9, -0.3);
+
+// gaunt, elongated body — noticeably taller than an average human.
+// Higher segment counts (was 10/8/10) for a smoother, more realistic silhouette.
+const mummyBody = new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.34,2.1,20,4), new THREE.MeshStandardMaterial({color:0xb8a582, roughness:0.95}));
+mummyBody.position.y = 1.55;
+const mummyNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.16,0.4,16), new THREE.MeshStandardMaterial({color:0xb0a081, roughness:0.95}));
+mummyNeck.position.y = 2.75;
+// elongated, slightly tilted-forward head for a more unsettling silhouette
+const mummyHead = new THREE.Mesh(new THREE.SphereGeometry(0.22,24,24), new THREE.MeshStandardMaterial({color:0xaf9d7c, roughness:0.95}));
+mummyHead.scale.set(0.85,1.25,0.95);
+mummyHead.position.y = 3.15;
+mummyHead.rotation.x = 0.12;
+// long, thin bony arms hanging past the knees — reads as "tall and reaching"
+function mummyArm(sign){
+  const g = new THREE.Group();
+  const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.09,1.0,14), new THREE.MeshStandardMaterial({color:0xb0a081, roughness:0.95}));
+  upper.position.set(sign*0.36, 2.35, 0.05);
+  upper.rotation.z = sign*0.18;
+  const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.08,1.05,14), new THREE.MeshStandardMaterial({color:0xa89670, roughness:0.95}));
+  lower.position.set(sign*0.48, 1.45, 0.1);
+  lower.rotation.z = sign*0.06;
+  // a small hand mass at the wrist so the arm doesn't just end in a flat cap
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.07,14,14), new THREE.MeshStandardMaterial({color:0xa89670, roughness:0.95}));
+  hand.scale.set(0.9,1.1,0.8);
+  hand.position.set(sign*0.55, 0.94, 0.13);
+  g.add(upper, lower, hand);
+  return g;
+}
+// tattered bandage wraps crossing the body, spanning the taller torso
+const wrapMat = new THREE.MeshStandardMaterial({color:0x968257, roughness:1});
+const wraps = [];
+for(let i=0;i<7;i++){
+  const w = new THREE.Mesh(new THREE.TorusGeometry(0.29 - i*0.006,0.038,10,20), wrapMat);
+  w.position.y = 0.65 + i*0.28;
+  w.rotation.x = Math.PI/2;
+  w.rotation.z = (i%2===0? 0.15 : -0.15);
+  wraps.push(w);
+}
+// large, brightly glowing red eyes set deep in the elongated face — the scary focal point
+const eyeMat = new THREE.MeshStandardMaterial({color:0x330000, emissive:0xff2200, emissiveIntensity:1.6});
+const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05,12,12), eyeMat);
+eyeL.position.set(0.09, 3.17, 0.19);
+const eyeR = eyeL.clone(); eyeR.position.x = -0.09;
+const eyeGlow = new THREE.PointLight(0xff2200, 0.7, 3, 2);
+eyeGlow.position.set(0, 3.17, 0.3);
+
+mummyGroup.add(mummyPedestal, sarcophagusBack, sarcoFrameL, sarcoFrameR, sarcoFrameTop, sarcoFront, sarcoSide(1), sarcoSide(-1),
+  sarcoBase, sarcoLid, lidDeco, sarcoTrim, mummyBody, mummyNeck, mummyHead,
+  mummyArm(1), mummyArm(-1), eyeL, eyeR, eyeGlow, ...wraps);
+mummyGroup.position.set(-10.5, 0, 7);
+mummyGroup.rotation.y = 0.6;
+const mummyPlacard = makePlacard("UNIDENTIFIED REMAINS", "Unusually tall specimen — do not touch the glass");
+mummyPlacard.position.set(0, 0, 0.75);
+mummyGroup.add(mummyPlacard);
+scene.add(mummyGroup);
+registerStation(mummyBody, "The Mummy", "[E] Look inside the case",
+  ()=> openMummyEncounter(), mummyGroup);
+
+//// ---------- PRECISE EXHIBIT INTERACTION SURFACES ----------
+// These thin surfaces follow the visible front of each exhibit. They are
+// raycast targets only; they do not affect physical player collision.
+const preciseInteractionMaterial = new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false});
+function addPreciseSurface(parent, id, width, height, depth, x, y, z){
+  const surface = new THREE.Mesh(new THREE.BoxGeometry(width,height,depth), preciseInteractionMaterial);
+  surface.position.set(x,y,z);
+  surface.userData.interactable = true;
+  surface.userData.interactionId = id;
+  surface.userData.stationName = id;
+  parent.add(surface);
+  return surface;
+}
+// Cabinet glass/front frame.
+addPreciseSurface(cabinetGroup, "Display Cabinet", 1.48, 2.02, .035, 0, 1.12, .34);
+// Armour: separate compact regions preserve the recognizable silhouette.
+addPreciseSurface(armorGroup, "Number Lock", 1.10, .72, .06, 0, 1.22, .49);
+addPreciseSurface(armorGroup, "Number Lock", .78, .55, .06, 0, .54, .40);
+addPreciseSurface(armorGroup, "Number Lock", .82, .44, .06, 0, .00, .38);
+// Clock face and body.
+addPreciseSurface(clockGroup, "Grandfather Clock", .82, 2.95, .035, 0, 1.72, .30);
+// Portrait canvas/frame.
+addPreciseSurface(portraitGroup, "The Portrait", 1.18, 1.58, .035, 0, .10, .10);
+// Vault door and its mechanism.
+addPreciseSurface(vaultGroup, "The Vault", 1.68, 2.42, .045, 0, 1.30, .38);
+// Mummy case glass/front frame.
+addPreciseSurface(mummyGroup, "The Mummy", 1.12, 3.48, .035, 0, 2.10, .37);
+
+//// ---------- PROCEDURAL EXHIBIT DETAIL PASS (cosmetic only) ----------
+let clockPendulum = null;
+const detailWood = varyRoughness(new THREE.MeshStandardMaterial({color:0x3a2413, roughness:.72, metalness:.08}),.72,.10);
+const detailWoodDark = new THREE.MeshStandardMaterial({color:0x1b1008, roughness:.82});
+const detailMetal = varyRoughness(new THREE.MeshStandardMaterial({color:0x625b4e, roughness:.32, metalness:.78}),.32,.07);
+const detailGold = new THREE.MeshStandardMaterial({color:0xa98542, roughness:.26, metalness:.72});
+const detailStone = varyRoughness(new THREE.MeshStandardMaterial({color:0xc3b99d, roughness:.88, metalness:0}),.88,.06);
+const detailGlass = museumGlassMaterial(.14);
+const detailBandage = new THREE.MeshStandardMaterial({color:0xa9997a, roughness:.98});
+function detailBox(w,h,d,mat,x,y,z,bevel=0){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); return m;
+}
+// Mummy: add rounded shoulder/hip mass, feet and physically layered wraps to the existing body.
+const mummyShoulder = new THREE.Mesh(new THREE.SphereGeometry(.36,16,10), detailBandage); mummyShoulder.scale.set(1.15,.55,.72); mummyShoulder.position.set(0,2.25,.02);
+const mummyHip = new THREE.Mesh(new THREE.SphereGeometry(.3,16,10), detailBandage); mummyHip.scale.set(1.08,.7,.72); mummyHip.position.set(0,.75,.02);
+const mummyLegL = new THREE.Mesh(new THREE.CylinderGeometry(.095,.13,.8,14), detailBandage); mummyLegL.position.set(-.14,.48,.05);
+const mummyLegR = mummyLegL.clone(); mummyLegR.position.x=.14;
+const mummyFootL = new THREE.Mesh(new THREE.SphereGeometry(.12,12,8), detailBandage); mummyFootL.scale.set(1.15,.55,1.5); mummyFootL.position.set(-.14,.13,.14);
+const mummyFootR = mummyFootL.clone(); mummyFootR.position.x=.14;
+[mummyShoulder,mummyHip,mummyLegL,mummyLegR,mummyFootL,mummyFootR].forEach(m=>mummyGroup.add(m));
+for(let i=0;i<5;i++){
+  const wrap = new THREE.Mesh(new THREE.TorusGeometry(.16+i*.018,.025,8,20), new THREE.MeshStandardMaterial({color:[0x8f8065,0xb8a985,0x776951][i%3],roughness:1}));
+  wrap.rotation.x=Math.PI/2; wrap.position.set(i%2?-.14:.14,.25+i*.17,.08); wrap.scale.z=.78; mummyGroup.add(wrap);
+}
+// Cabinet: four posts, shelves, crown, door mullions and handles around the existing body.
+[[ -.72,-.24],[-.72,.24],[.72,-.24],[.72,.24]].forEach(([x,z])=>cabinetGroup.add(detailBox(.12,2.32,.12,detailWood,x,1.16,z)));
+cabinetGroup.add(detailBox(1.82,.16,.78,detailWood,0,2.31,0), detailBox(1.78,.13,.76,detailGold,0,2.42,0));
+[.55,1.1,1.65].forEach(y=>cabinetGroup.add(detailBox(1.35,.045,.5,detailWoodDark,0,y,.02)));
+cabinetGroup.add(new THREE.Mesh(new THREE.BoxGeometry(.035,1.72,.035),detailGold)); cabinetGroup.children[cabinetGroup.children.length-1].position.set(0,1.1,.34);
+const cabHandleL=new THREE.Mesh(new THREE.TorusGeometry(.055,.014,8,16),detailGold); cabHandleL.position.set(-.08,1.1,.37); cabHandleL.rotation.x=Math.PI/2; const cabHandleR=cabHandleL.clone(); cabHandleR.position.x=.08; cabinetGroup.add(cabHandleL,cabHandleR);
+// Grandfather clock: crown, side moldings, glass cover, pendulum and weights.
+clockGroup.add(detailBox(1.18,.16,.62,detailWood,0,3.42,0), detailBox(1.02,.22,.58,detailGold,0,3.58,0));
+[-.43,.43].forEach(x=>clockGroup.add(detailBox(.12,2.95,.12,detailGold,x,1.58,.29)));
+const clockGlass=new THREE.Mesh(new THREE.CircleGeometry(.37,32),detailGlass); clockGlass.position.set(0,2.6,.285); clockGroup.add(clockGlass);
+const clockRod=detailBox(.025,1.28,.025,detailGold,0,1.15,.27); clockPendulum=clockRod; clockGroup.add(clockRod);
+const pendulumBob=new THREE.Mesh(new THREE.SphereGeometry(.18,16,10),detailGold); pendulumBob.scale.set(.72,1.1,.22); pendulumBob.position.set(0,.52,.28); clockGroup.add(pendulumBob);
+[-.18,.18].forEach(x=>{const w=detailBox(.1,.68,.1,detailMetal,x,1.03,.22); clockGroup.add(w);});
+// Statue silhouettes: shoulders, robes and carved heads layered over the original pedestals.
+const statueRefs=[]; scene.traverse(o=>{ if(o.type==='Group' && o.children.some(c=>c.geometry && c.geometry.type==='CylinderGeometry') && o.position.z===9.3) statueRefs.push(o); });
+statueRefs.forEach(statue=>{
+  const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.32,16,10),detailStone); shoulder.scale.set(1.5,.55,.8); shoulder.position.y=1.55;
+  const robe=new THREE.Mesh(new THREE.ConeGeometry(.43,.95,16),detailStone); robe.position.y=.82;
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.19,16,12),detailStone); head.position.y=2.02;
+  const armL=new THREE.Mesh(new THREE.CylinderGeometry(.07,.1,.7,12),detailStone); armL.position.set(-.32,1.1,0); armL.rotation.z=-.18; const armR=armL.clone(); armR.position.x=.32; armR.rotation.z=.18;
+  statue.add(shoulder,robe,head,armL,armR);
+});
+// Curator desk: drawer fronts, brass pulls and side aprons.
+for(let i=0;i<2;i++){ const dr=detailBox(1.05,.22,.045,detailWoodDark,0,.68-i*.25,.57); deskGroup.add(dr); const pull=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,8,14),detailGold); pull.position.set(0,.68-i*.25,.62); pull.rotation.x=Math.PI/2; deskGroup.add(pull); }
+deskGroup.add(detailBox(2.15,.12,.12,detailWood,-0.0,.82,.48),detailBox(.12,.65,.8,detailWood,-1.02,.5,0),detailBox(.12,.65,.8,detailWood,1.02,.5,0));
+// Vault: concentric reinforced door, bolts and hinge barrels around the existing interactable door.
+const vaultInner=new THREE.Mesh(new THREE.BoxGeometry(1.45,2.22,.08),detailMetal); vaultInner.position.set(0,1.3,.18); vaultGroup.add(vaultInner);
+const vaultRing=new THREE.Mesh(new THREE.TorusGeometry(.43,.06,10,28),detailGold); vaultRing.position.set(0,1.3,.25); vaultGroup.add(vaultRing);
+for(let i=0;i<8;i++){const a=i*Math.PI/4; const bolt=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.035,10),detailGold); bolt.position.set(Math.cos(a)*.58,1.3+Math.sin(a)*.58,.27); bolt.rotation.x=Math.PI/2; vaultGroup.add(bolt);}
+[-1,1].forEach(x=>vaultGroup.add(detailBox(.12,.42,.18,detailMetal,x*1.02,1.3,-.02)));
+// Number lock armor: raised chest rim and three cosmetic dial rings, while torso remains the interaction target.
+armorGroup.add(detailBox(.7,.08,.08,detailGold,0,1.55,.33));
+[-.22,0,.22].forEach(x=>{const d=new THREE.Mesh(new THREE.TorusGeometry(.11,.025,8,20),detailGold); d.position.set(x,1.25,.34); d.rotation.x=Math.PI/2; armorGroup.add(d);});
+
+//// ---------- FLOATING DUST MOTES (ported from exhibit-1700.html) ----------
+// Tiny drifting glints that read as "stars" against the near-black upper
+// void above the low walls, matching the reference screenshot's look.
+const moteTexCnv = document.createElement('canvas');
+moteTexCnv.width = moteTexCnv.height = 32;
+(function(){
+  const c = moteTexCnv.getContext('2d');
+  const grd = c.createRadialGradient(16,16,0,16,16,16);
+  grd.addColorStop(0,'rgba(255,220,160,0.9)');
+  grd.addColorStop(1,'rgba(255,220,160,0)');
+  c.fillStyle = grd; c.fillRect(0,0,32,32);
+})();
+const moteTex = new THREE.CanvasTexture(moteTexCnv);
+const MOTE_COUNT = 200;
+const motePos = new Float32Array(MOTE_COUNT*3);
+const moteSpeed = new Float32Array(MOTE_COUNT);
+for(let mi=0; mi<MOTE_COUNT; mi++){
+  motePos[mi*3] = (Math.random()*2-1)*(ROOM_HALF_X-1);
+  motePos[mi*3+1] = Math.random()*ROOM_H;
+  motePos[mi*3+2] = (Math.random()*2-1)*(ROOM_HALF_Z-1);
+  moteSpeed[mi] = 0.06+Math.random()*0.1;
+}
+const moteGeo = new THREE.BufferGeometry();
+moteGeo.setAttribute('position', new THREE.BufferAttribute(motePos,3));
+const moteMat = new THREE.PointsMaterial({size:0.05, map:moteTex, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending});
+const motes = new THREE.Points(moteGeo, moteMat);
+scene.add(motes);
+
+//// ---------- BEACONS: glowing markers above every interactable exhibit ----------
+// These make it obvious, even to a first-time player, exactly which objects
+// in the room can be interacted with. They pulse gently and dim once a
+// station has been solved (except the always-active Vault and Mummy).
+const beacons = [];
+function addBeacon(group, height, name){
+  const beaconGroup = new THREE.Group();
+  const core = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.14, 0),
+    new THREE.MeshStandardMaterial({color:0xffdca8, emissive:0xffbb55, emissiveIntensity:1.6, transparent:true, opacity:0.9})
+  );
+  const beam = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.02,0.05,0.9,8,1,true),
+    new THREE.MeshBasicMaterial({color:0xffcf8a, transparent:true, opacity:0.25, side:THREE.DoubleSide})
+  );
+  beam.position.y = -0.5;
+  const light = new THREE.PointLight(0xffcf8a, 0.6, 3.5, 2);
+  beaconGroup.add(core, beam, light);
+  beaconGroup.position.set(group.position.x, height, group.position.z);
+  scene.add(beaconGroup);
+  beacons.push({group: beaconGroup, core, light, stationName: name, baseY: height});
+}
+addBeacon(deskGroup, 2.1, "Curator's Desk");
+addBeacon(cabinetGroup, 2.9, "Display Cabinet");
+addBeacon(armorGroup, 2.5, "Number Lock");
+addBeacon(clockGroup, 3.8, "Grandfather Clock");
+addBeacon(portraitGroup, 3.4, "The Portrait");
+addBeacon(vaultGroup, 3.2, "The Vault");
+addBeacon(mummyGroup, 4.3, "The Mummy");
+
+function updateBeacons(t){
+  beacons.forEach(b=>{
+    const solved = GameState.stationsSolved[b.stationName];
+    const bob = Math.sin(t*0.0025 + b.baseY) * 0.06;
+    b.group.position.y = b.baseY + bob;
+    b.core.rotation.y += 0.02;
+    const dim = solved ? 0.35 : 1;
+    b.core.material.emissiveIntensity = (1.3 + Math.sin(t*0.004)*0.4) * dim;
+    b.light.intensity = (0.55 + Math.sin(t*0.004)*0.2) * dim;
+    b.core.material.opacity = solved ? 0.45 : 0.9;
+  });
+}
+
+// Highlight whatever exhibit the player is currently looking at, in addition
+// to the text prompt, so the target is unmistakable.
+let highlightedMesh = null;
+function materialList(mesh){ return mesh && mesh.material ? (Array.isArray(mesh.material) ? mesh.material : [mesh.material]) : []; }
+function setHighlight(mesh){
+  if(highlightedMesh === mesh) return;
+  if(highlightedMesh){
+    materialList(highlightedMesh).forEach((mat, i)=>{
+      if(mat.emissive){
+        mat.emissive.setHex(highlightedMesh.userData._origEmissive?.[i] ?? 0x000000);
+        mat.emissiveIntensity = highlightedMesh.userData._origEmissiveI?.[i] ?? 0;
+      }
+    });
+  }
+  highlightedMesh = mesh;
+  const crosshair = document.getElementById('crosshair');
+  crosshair.classList.toggle('hot', !!mesh);
+  if(mesh){
+    const es=[], ei=[];
+    materialList(mesh).forEach(mat=>{
+      es.push(mat.emissive ? mat.emissive.getHex() : 0x000000);
+      ei.push(mat.emissiveIntensity || 0);
+      if(mat.emissive){ mat.emissive.setHex(0x665022); mat.emissiveIntensity = Math.max(0.32, mat.emissiveIntensity || 0); }
+    });
+    mesh.userData._origEmissive = es;
+    mesh.userData._origEmissiveI = ei;
+  }
+}
+
+//// ---------- CONTROLS: POINTER LOCK + WASD ----------
+function requestPointerLock(){
+  // Guard against rapid-refire calls (e.g. mashing click right after Escape),
+  // which browsers reject with an error that would otherwise spam the console.
+  if(document.pointerLockElement === canvas) return;
+  try{
+    const p = canvas.requestPointerLock();
+    if(p && typeof p.catch === 'function') p.catch(()=>{});
+  }catch(err){ /* ignore — user will just click again */ }
+}
+function exitPointerLock(){ if(document.pointerLockElement) document.exitPointerLock(); }
+
+document.addEventListener('pointerlockchange', ()=>{
+  GameState.pointerLocked = (document.pointerLockElement === canvas);
+});
+
+document.addEventListener('mousemove', (e)=>{
+  if(!GameState.pointerLocked) return;
+  yaw   -= e.movementX * 0.0022;
+  pitch -= e.movementY * 0.0022;
+  pitch = Math.max(-1.2, Math.min(1.2, pitch));
+});
+
+const keys = {};
+document.addEventListener('keydown', (e)=>{
+  keys[e.code] = true;
+  if(e.code === 'KeyE') tryInteract();
+  if(e.code === 'KeyF') toggleFlashlight();
+  if(e.code === 'Escape'){
+    closeModal();
+    exitPointerLock();
+  }
+});
+document.addEventListener('keyup', (e)=> keys[e.code]=false);
+
+// If the tab/window loses focus (alt-tab, switching apps) while a movement
+// key is held, no keyup event ever fires for it — the browser just stops
+// sending events. Without this, that key stays "stuck" true forever and the
+// player keeps drifting in one direction after they come back. Clearing all
+// key state on blur/visibility change fixes that.
+function resetKeys(){ for(const k in keys) keys[k] = false; }
+window.addEventListener('blur', resetKeys);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) resetKeys(); });
+
+//// ---------- FLASHLIGHT SYSTEM ----------
+let flashlightActive = false;
+let flashlightLight = null;
+
+function initFlashlight(){
+  // Create a spotlight for the flashlight beam
+  flashlightLight = new THREE.SpotLight(0xffffc2, 1.5, 15, Math.PI/6, 0.62, 1.5);
+  flashlightLight.castShadow = true;
+  flashlightLight.shadow.mapSize.set(512,512);
+  flashlightLight.shadow.bias = -0.0004;
+  flashlightLight.position.copy(camera.position);
+  flashlightLight.target.position.copy(camera.position).addScaledVector(
+    new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw)).multiplyScalar(-1), 10
+  );
+  scene.add(flashlightLight);
+  scene.add(flashlightLight.target);
+}
+
+function toggleFlashlight(){
+  if(!GameState.tools.includes("UV Flashlight")) return;
+  flashlightActive = !flashlightActive;
+  if(flashlightLight){
+    flashlightLight.intensity = flashlightActive ? 1.5 : 0;
+  }
+  logMsg(flashlightActive ? "Flashlight ON" : "Flashlight OFF");
+}
+
+function updateFlashlight(){
+  if(!flashlightLight || !GameState.tools.includes("UV Flashlight")) return;
+  if(flashlightActive){
+    flashlightLight.position.copy(camera.position);
+    const forward = new THREE.Vector3(Math.sin(yaw), -0.3, Math.cos(yaw)).multiplyScalar(-1).normalize();
+    flashlightLight.target.position.copy(camera.position).addScaledVector(forward, 15);
+  }
+}
+
+// Initialize flashlight when scene loads
+initFlashlight();
+let currentTarget = null;
+function resolveInteractiveTarget(object){
+  let node = object;
+  while(node){
+    if(node.userData && node.userData.interactive && node.userData.interactionId){
+      return interactables.find(i=>i.interactionId === node.userData.interactionId) || null;
+    }
+    node = node.parent;
+  }
+  return null;
+}
+// The first solid scene hit must be the same exhibit hit by the interaction ray.
+// This prevents activation through walls, furniture, floors, or another exhibit.
+function hasClearLineOfSight(targetHit){
+  const allHits = raycaster.intersectObjects(scene.children, true);
+  const first = allHits.find(h=>h.object.visible && h.object.type === 'Mesh' && h.object !== motes);
+  if(!first) return false;
+  const firstTarget = resolveInteractiveTarget(first.object);
+  // A direct hit on the intended exhibit is clear. Only another solid
+  // interactive exhibit in front of it blocks the interaction.
+  return !firstTarget || firstTarget.interactionId === targetHit.interactionId;
+}
+const interactiveObjects = [];
+function refreshInteractiveRoots(){
+  interactiveObjects.length=0;
+  interactables.forEach(i=>interactiveObjects.push(i.collider || i.mesh));
+}
+const interactionWorldPos = new THREE.Vector3();
+function updateInteractionTarget(){
+  const promptEl = document.getElementById('prompt');
+  let nearest = null;
+  let nearestDistance = Infinity;
+
+  // Interaction is based on horizontal proximity, not exact crosshair
+  // alignment. Use the registered collider/root's world position so nested
+  // Groups are handled correctly.
+  for(const st of interactables){
+    const root = st && (st.collider || st.mesh);
+    if(!root || !root.parent || typeof root.getWorldPosition !== 'function') continue;
+    root.getWorldPosition(interactionWorldPos);
+    const dx = playerPos.x - interactionWorldPos.x;
+    const dz = playerPos.z - interactionWorldPos.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+    if(distance <= st.interactionDistance && distance < nearestDistance){
+      nearest = st;
+      nearestDistance = distance;
+    }
+  }
+
+  if(nearest){
+    currentTarget = nearest;
+    promptEl.textContent = nearest.promptText;
+    promptEl.style.display = 'block';
+    setHighlight(nearest.mesh);
+  } else {
+    currentTarget = null;
+    promptEl.style.display = 'none';
+    setHighlight(null);
+  }
+}
+function tryInteract(){
+  if(GameState.ended) return;
+  if(document.getElementById('modalOverlay').style.display === 'flex') return;
+  if(currentTarget){
+    currentTarget.onInteract();
+  }
+}
+// Single click handler: if the mouse isn't captured yet, capture it; if it
+// already is and something's in the crosshair, interact with it. (Previously
+// two separate click listeners did this, which worked but fired redundantly
+// on every click — merged into one for clarity and to avoid any chance of
+// double-triggering an interaction.)
+canvas.addEventListener('click', ()=>{
+  if(GameState.ended || document.getElementById('modalOverlay').style.display === 'flex') return;
+  if(!GameState.pointerLocked){
+    requestPointerLock();
+  } else if(currentTarget){
+    tryInteract();
+  }
+});
+
+//// ---------- MOVEMENT ----------
+// (Per-object colliders were built but never actually blocked movement —
+// checkCollision() unconditionally returned false — so the whole array of
+// invisible boxes was dead weight. Removed; the room-boundary clamp below
+// is the only collision the game ever used.)
+const clock3 = new THREE.Clock();
+function updateMovement(delta){
+  if(!GameState.pointerLocked) return;
+  const speed = 3.4 * delta;
+  const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw)).multiplyScalar(-1);
+  const right = new THREE.Vector3(forward.z, 0, -forward.x);
+
+  let move = new THREE.Vector3();
+  if(keys['KeyW']) move.add(forward);
+  if(keys['KeyS']) move.sub(forward);
+  if(keys['KeyA']) move.sub(right);
+  if(keys['KeyD']) move.add(right);
+  if(move.lengthSq() > 0){
+    move.normalize().multiplyScalar(speed);
+    const newPos = playerPos.clone().add(move);
+
+    // Clamp to room boundaries — the only collision the game needs
+    newPos.x = Math.max(-ROOM_HALF_X+0.6, Math.min(ROOM_HALF_X-0.6, newPos.x));
+    newPos.z = Math.max(-ROOM_HALF_Z+0.6, Math.min(ROOM_HALF_Z-0.6, newPos.z));
+
+    playerPos.copy(newPos);
+  }
+  camera.position.copy(playerPos);
+  camera.rotation.set(pitch, yaw, 0, 'YXZ');
+}
+
+//// ---------- MODAL / PUZZLE SYSTEM ----------
+const overlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalBtns = document.getElementById('modalBtns');
+
+function openModal(title, bodyHTML, buttons){
+  modalTitle.textContent = title;
+  modalBody.innerHTML = bodyHTML;
+  modalBtns.innerHTML = "";
+  buttons.forEach(b=>{
+    const btn = document.createElement('button');
+    btn.className = 'choiceBtn';
+    btn.textContent = b.label;
+    btn.onclick = b.action;
+    modalBtns.appendChild(btn);
+  });
+  overlay.style.display = 'flex';
+  exitPointerLock();
+}
+function closeModal(){
+  overlay.style.display = 'none';
+}
+document.getElementById('modalClose').onclick = closeModal;
+
+let steadyHands = false; // composure boost effect: next fail doesn't cost a skip
+
+function puzzleFail(msg){
+  logMsg(msg, true);
+  if(steadyHands){
+    steadyHands = false;
+    logMsg("Your steady hands absorb the mistake — no time lost.");
+  } else {
+    doTimeSkip("a mistake, corrected too slowly.");
+  }
+}
+function puzzleSuccess(stationName, reward){
+  GameState.stationsSolved[stationName] = true;
+  doTimeSkip("progress made at " + stationName + ".");
+  reward();
+  closeModal();
+  updateHUD();
+}
+
+// Adds a "Need a hint?" button to any puzzle's choices. Clicking it just
+// reveals the answer in plain text — free, no penalty, always available.
+// This exists so a first-time player is never stuck.
+function withHint(buttons, hintText){
+  return [...buttons, {
+    label: "💡 Need a hint?",
+    action: ()=>{
+      const body = document.getElementById('modalBody');
+      if(!body.dataset.hintShown){
+        body.innerHTML += `<br><br><b style="color:#e8c873">Hint:</b> ${hintText}`;
+        body.dataset.hintShown = "1";
+      }
+    }
+  }];
+}
+
+//// ---- Station 1: Desk (simple matching puzzle) ----
+function openPuzzle_Desk(){
+  if(GameState.stationsSolved["Curator's Desk"]){
+    openModal("Curator's Desk", "The drawer is already open. The letter lies still, half-burned.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  if(stationLocked("Curator's Desk")){
+    openModal("Curator's Desk", lockedMessage("Curator's Desk"), [{label:"Close", action:closeModal}]);
+    return;
+  }
+  const symbols = [
+    "◆ Diamond seal (4 points)",
+    "☾ Crescent seal (curved, no points)",
+    "✦ Star seal (5 points)",
+    "▲ Triangle seal (3 points)"
+  ];
+  const correct = "✦ Star seal (5 points)";
+  openModal("Curator's Desk",
+    "A half-burned letter lies on the desk. Two lines of a riddle about the drawer's seal are still legible:<br><br>" +
+    "<i>'...the true seal is no curve, and holds more points than three...'</i><br>" +
+    "<i>'...count them again — the number you want is odd, not even...'</i><br><br>" +
+    "The locked drawer has a seal-shaped indent. <b>Work out which seal fits both lines, then pick it.</b>",
+    withHint(symbols.map(s=>({
+      label: s,
+      action: ()=>{
+        if(s === correct){
+          puzzleSuccess("Curator's Desk", ()=>{
+            collectTool("Brass Key");
+            GameState.lore.push("Unfinished Letter");
+            logMsg("The drawer clicks open. You take the Brass Key — the vault should open for it.");
+            logMsg("LORE: '...the fire wasn't an accident, I have to tell someone before—' the letter cuts off.");
+          });
+        } else {
+          puzzleFail("Wrong seal — the drawer resists and something creaks upstairs.");
+          closeModal();
+        }
+      }
+    })), "'No curve, more than three points' rules out the Crescent (curved) and Triangle (3). 'Odd, not even' rules out the Diamond (4, even). That leaves the Star (5, odd).")
+  );
+}
+
+//// ---- Station 2: Cabinet (BODMAS gem cipher — new equations every attempt) ----
+// Builds four color->equation pairs: three reduce to distinct whole numbers,
+// one (the forgery) deliberately leaves a remainder. Regenerated fresh each
+// time the puzzle window is opened, so a retry never shows the same sums.
+function generateCabinetPuzzle(){
+  function ri(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function wholeEq(){
+    const kind = ri(0,3);
+    if(kind===0){ const a=ri(1,9), b=ri(2,9), c=ri(2,9); return {text:`${a} + ${b} × ${c}`, value:a+b*c}; }
+    if(kind===1){ const a=ri(2,9), b=ri(2,9), c=ri(1,20); return {text:`${a} × ${b} − ${c}`, value:a*b-c}; }
+    if(kind===2){ const divisor=ri(2,6), mult=ri(2,9), a=divisor*mult, c=ri(1,12); return {text:`${a} ÷ ${divisor} + ${c}`, value:mult+c}; }
+    const divisor=ri(2,6), mult=ri(2,9), a=divisor*mult, c=ri(1,12); return {text:`${c} + ${a} ÷ ${divisor}`, value:c+mult};
+  }
+  function forgeryEq(){
+    let divisor, a;
+    do{ divisor=ri(2,9); a=ri(1,40); }while(a % divisor === 0);
+    const c = ri(1,9);
+    const value = Math.round((a/divisor + c)*100)/100;
+    return {text:`${a} ÷ ${divisor} + ${c}`, value};
+  }
+  const seen = new Set();
+  const genuine = [];
+  let guard = 0;
+  while(genuine.length<3 && guard<300){
+    guard++;
+    const eq = wholeEq();
+    if(Number.isInteger(eq.value) && !seen.has(eq.value)){
+      seen.add(eq.value);
+      genuine.push(eq);
+    }
+  }
+  const forgery = forgeryEq();
+  const colors = ["Red","Blue","Green","Yellow"];
+  const shuffled = colors.slice().sort(()=>Math.random()-0.5);
+  const eqs = {};
+  eqs[shuffled[0]] = genuine[0];
+  eqs[shuffled[1]] = genuine[1];
+  eqs[shuffled[2]] = genuine[2];
+  eqs[shuffled[3]] = forgery;
+  const forgeryColor = shuffled[3];
+  const genuineColors = [shuffled[0],shuffled[1],shuffled[2]];
+  const order = genuineColors.slice().sort((x,y)=> eqs[x].value - eqs[y].value);
+  return {eqs, forgeryColor, order};
+}
+
+function openPuzzle_Cabinet(){
+  if(GameState.stationsSolved["Display Cabinet"]){
+    openModal("Display Cabinet", "The cabinet stands open. The UV flashlight is already yours.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  const puzzle = generateCabinetPuzzle();
+  const order = puzzle.order;
+  let picked = [];
+  let hintShown = false;
+  function render(){
+    const colorLines = ["Red","Blue","Green","Yellow"].map(c=>
+      `<b style="color:#e8c873;">${c}:</b> ${puzzle.eqs[c].text}`).join("<br>");
+    modalBody.innerHTML = `The cabinet frame is etched with four gems, each marked with an equation instead of a number (solve left-to-right, multiply/divide before add/subtract):<br><br>
+      ${colorLines}<br><br>
+      A small plaque reads: <i>'Only whole numbers open the true vault cipher. Enter the genuine gems from lowest value to highest.'</i><br><br>
+      Click the buttons below in the order your calculations give (one gem's equation doesn't reduce to a whole number — it's a forgery, ignore it).<br><br>
+      So far selected: ${picked.join(", ") || "(none yet)"}` + (hintShown ? `<br><br><b style="color:#e8c873">Hint:</b> ${["Red","Blue","Green","Yellow"].map(c=>`${c} = ${puzzle.eqs[c].value}${c===puzzle.forgeryColor?" (not whole — the forgery)":""}`).join(". ")}. Ascending order: ${order.join(", ")}.` : "");
+    modalBtns.innerHTML = "";
+    ["Red","Blue","Green","Yellow"].forEach(color=>{
+      const btn = document.createElement('button');
+      btn.className = 'choiceBtn';
+      btn.textContent = color;
+      btn.onclick = ()=>{
+        picked.push(color);
+        if(picked.length === order.length){
+          if(JSON.stringify(picked) === JSON.stringify(order)){
+            puzzleSuccess("Display Cabinet", ()=>{
+              collectTool("UV Flashlight");
+              logMsg("The glass slides open. You take the UV Flashlight.");
+            });
+          } else {
+            puzzleFail("Wrong order — a faint glow flares behind the glass, then fades.");
+            picked = [];
+            closeModal();
+          }
+        } else {
+          render();
+        }
+      };
+      modalBtns.appendChild(btn);
+    });
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'choiceBtn';
+    resetBtn.textContent = "↺ Reset my picks";
+    resetBtn.onclick = ()=>{ picked = []; render(); };
+    modalBtns.appendChild(resetBtn);
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'choiceBtn';
+    hintBtn.textContent = "💡 Need a hint?";
+    hintBtn.onclick = ()=>{ hintShown = true; render(); };
+    modalBtns.appendChild(hintBtn);
+  }
+  modalTitle.textContent = "Display Cabinet";
+  overlay.style.display = 'flex';
+  exitPointerLock();
+  render();
+
+  // Glitch cue tied to this station
+  if(!GameState.stationsSolved["Display Cabinet"]){
+    setTimeout(()=> logMsg("Under the glass, one mask's eye socket seems to glow faintly, watching you choose.", true), 600);
+  }
+}
+
+//// ---- Station 3: Number Lock (6-7 numbered dials, arrange in order; new numbers every attempt) ----
+function generateNumberLockPuzzle(){
+  const count = Math.random() < 0.5 ? 6 : 7;
+  const pool = new Set();
+  while(pool.size < count){
+    pool.add(Math.floor(Math.random()*90) + 10); // two-digit dials, 10-99
+  }
+  const numbers = Array.from(pool);
+  const ascending = Math.random() < 0.5;
+  const correctOrder = numbers.slice().sort((a,b)=> ascending ? a-b : b-a);
+  const displayed = numbers.slice().sort(()=>Math.random()-0.5);
+  return {displayed, correctOrder, ascending};
+}
+
+function openPuzzle_NumberLock(){
+  if(GameState.stationsSolved["Number Lock"]){
+    openModal("Number Lock", "The chestplate hangs open, its dials still. Whatever was locked inside is already gone.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  if(stationLocked("Number Lock")){
+    openModal("Number Lock", lockedMessage("Number Lock"), [{label:"Close", action:closeModal}]);
+    return;
+  }
+  const puzzle = generateNumberLockPuzzle();
+  let picked = [];
+  let hintShown = false;
+  function render(){
+    modalBody.innerHTML = `The chestplate hides ${puzzle.displayed.length} small brass dials, each stamped with a two-digit number, scrambled out of order:<br><br>` +
+      `<b style="color:#e8c873;">${puzzle.displayed.join("   ")}</b><br><br>` +
+      `A worn inscription beneath them reads: <i>'Turn them from ${puzzle.ascending ? "least to greatest" : "greatest to least"}, and the plate will yield.'</i><br><br>` +
+      `<b>Click the numbers in the correct order.</b><br><br>` +
+      `So far entered: ${picked.join(" → ") || "(none yet)"}` +
+      (hintShown ? `<br><br><b style="color:#e8c873">Hint:</b> Correct order: ${puzzle.correctOrder.join(" → ")}.` : "");
+    modalBtns.innerHTML = "";
+    puzzle.displayed.forEach(n=>{
+      const btn = document.createElement('button');
+      btn.className = 'choiceBtn';
+      btn.textContent = n;
+      btn.disabled = picked.includes(n);
+      btn.onclick = ()=>{
+        picked.push(n);
+        if(picked.length === puzzle.correctOrder.length){
+          if(JSON.stringify(picked) === JSON.stringify(puzzle.correctOrder)){
+            closeModal();
+            triggerArmorGlitch(true);
+          } else {
+            puzzleFail("Wrong order — the dials snap back with a grinding clunk, and the lights flicker.");
+            picked = [];
+            closeModal();
+          }
+        } else {
+          render();
+        }
+      };
+      modalBtns.appendChild(btn);
+    });
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'choiceBtn';
+    resetBtn.textContent = "↺ Reset my picks";
+    resetBtn.onclick = ()=>{ picked = []; render(); };
+    modalBtns.appendChild(resetBtn);
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'choiceBtn';
+    hintBtn.textContent = "💡 Need a hint?";
+    hintBtn.onclick = ()=>{ hintShown = true; render(); };
+    modalBtns.appendChild(hintBtn);
+  }
+  modalTitle.textContent = "Number Lock";
+  overlay.style.display = 'flex';
+  exitPointerLock();
+  render();
+}
+
+function triggerArmorGlitch(willSolve){
+  GameState.glitchActive = true;
+  logMsg("The helm turns. Slowly. Look away.", true);
+  document.getElementById('vignette').classList.add('danger');
+  const banner = document.getElementById('glitchBanner');
+  banner.textContent = "Get ready... you're about to need to look away";
+  banner.style.display = 'block';
+  requestPointerLock(); // regain mouse-look immediately so the player can actually turn away
+
+  // simple QTE: player must NOT look at the armor for ~2.5s (camera direction check).
+  // A short grace period runs first (doesn't count against the player) so there's
+  // always real time to move the mouse before judging begins.
+  let watchedTooLong = 0;
+  const armorWorldPos = new THREE.Vector3();
+  torso.getWorldPosition(armorWorldPos);
+  const graceMs = 1300;
+  const qteDuration = 2600;
+  const start = performance.now();
+
+  function qteTick(){
+    // Bail out cleanly if the game ended by some other means (e.g. time ran
+    // out) while this loop was still ticking — otherwise it keeps running in
+    // the background and can still hand out a fragment after the end screen.
+    if(GameState.ended){
+      GameState.glitchActive = false;
+      banner.style.display = 'none';
+      return;
+    }
+    const elapsed = performance.now() - start;
+    if(elapsed < graceMs){
+      banner.textContent = "Get ready... look away from the armor now";
+      requestAnimationFrame(qteTick);
+      return;
+    }
+    if(elapsed - graceMs < 20){ banner.textContent = "Don't look at the armor — hold on!"; }
+    if(elapsed > graceMs + qteDuration){
+      GameState.glitchActive = false;
+      banner.style.display = 'none';
+      document.getElementById('vignette').classList.toggle('danger', GameState.lightsCut);
+      if(watchedTooLong > 1100){
+        logMsg("It noticed you.", true);
+        doTimeSkip("the armor noticed you watching.");
+      } else {
+        logMsg("You kept your eyes down. It settles.");
+        GameState.composureBoosts++;
+        steadyHands = true;
+        logMsg("Composure boost earned: Steady Hands active for your next mistake.");
+      }
+      if(willSolve){
+        GameState.stationsSolved["Number Lock"] = true;
+        collectTool("Dial Key");
+        logMsg("The dials click into place and the chestplate springs open. You take the Dial Key.");
+        updateHUD();
+      }
+      return;
+    }
+    // check if camera is roughly facing the armor
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    const toArmor = armorWorldPos.clone().sub(camera.position).normalize();
+    const dot = camDir.dot(toArmor);
+    if(dot > 0.75){ watchedTooLong += 16; }
+    requestAnimationFrame(qteTick);
+  }
+  qteTick();
+}
+
+//// ---- Station 4: Clock (set hands mentally — simple confirm since 3D hands already track skip progress) ----
+function openPuzzle_Clock(){
+  if(GameState.stationsSolved["Grandfather Clock"]){
+    openModal("Grandfather Clock", "The compartment is already open.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  if(stationLocked("Grandfather Clock")){
+    openModal("Grandfather Clock", lockedMessage("Grandfather Clock"), [{label:"Close", action:closeModal}]);
+    return;
+  }
+  openModal("Grandfather Clock",
+    "This clock's hands are loose. Two brass plaques bolted beside the face give clues to the hour and minute it needs:<br><br>" +
+    "<i>'Hour: three display gems, times four exhibit halls, minus seven sealed doors.'</i><br>" +
+    "<i>'Minute: ninety-six visitor badges, halved, minus one missing name.'</i><br><br>" +
+    "<b>Work out the time the clues give, then set the clock to it.</b>",
+    withHint([
+      {label:"5:47", action:()=>{
+        puzzleSuccess("Grandfather Clock", ()=>{
+          collectTool("Vault Map Fragment");
+          GameState.lore.push("Audio Cylinder");
+          logMsg("A compartment pops open — a folded Vault Map Fragment, and an old audio cylinder.");
+          logMsg("LORE: a scratched recording plays, barely audible: '...get them out, the east wing's on fire—' then static.");
+        });
+      }},
+      {label:"5:48", action:()=>{
+        puzzleFail("Close, but wrong — the hands seize up a minute early.");
+        closeModal();
+      }},
+      {label:"4:47", action:()=>{
+        puzzleFail("Wrong hour — the hands spin backward and lock.");
+        closeModal();
+      }},
+      {label:"6:41", action:()=>{
+        puzzleFail("Nothing happens — wrong time entirely, and the hands seize up.");
+        closeModal();
+      }}
+    ], "Hour: 3 × 4 − 7 = 5. Minute: 96 ÷ 2 − 1 = 47. The time is 5:47.")
+  );
+}
+
+//// ---- Station 5: Portrait (assemble fragments + major glitch chase-in-room) ----
+//// ---- Bonus Station: Portrait (picture-matching puzzle — locked until the Dial Key) ----
+function generatePortraitPuzzle(){
+  const POOL = [
+    {name:"Sunlit Courtyard", emoji:"☀️"},
+    {name:"Grand Staircase", emoji:"🪜"},
+    {name:"Harbor at Dusk", emoji:"⚓"},
+    {name:"West Wing Corridor", emoji:"🚪"},
+    {name:"Autumn Garden", emoji:"🍂"},
+    {name:"Moonlit Lake", emoji:"🌙"},
+    {name:"Mountain Pass", emoji:"⛰️"}
+  ];
+  const shuffled = POOL.slice().sort(()=>Math.random()-0.5);
+  const options = shuffled.slice(0,4);
+  const correct = options[Math.floor(Math.random()*options.length)];
+  return {options, correct};
+}
+
+function openPuzzle_Portrait(){
+  if(GameState.stationsSolved["The Portrait"]){
+    openModal("The Portrait", "The row of paintings is complete now — nothing left to hang.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  if(stationLocked("The Portrait")){
+    openModal("The Portrait", lockedMessage("The Portrait"), [{label:"Close", action:closeModal}]);
+    return;
+  }
+  const puzzle = generatePortraitPuzzle();
+  let hintShown = false;
+  function render(){
+    modalBody.innerHTML =
+      "A row of framed paintings lines the wall, with one empty spot. Carved faintly into the bare wood of that empty frame is a small picture of what's supposed to hang there:<br><br>" +
+      `<div style="text-align:center;font-size:52px;margin:10px 0;">${puzzle.correct.emoji}</div>` +
+      `<div style="text-align:center;color:#b8a06a;font-style:italic;margin-bottom:6px;">That's the picture carved into the empty frame.</div>` +
+      "<b>Click the painting below whose picture matches it.</b>" +
+      (hintShown ? `<br><br><b style="color:#e8c873">Hint:</b> You're looking for ${puzzle.correct.emoji} — that's "${puzzle.correct.name}".` : "");
+    modalBtns.innerHTML = "";
+    puzzle.options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'choiceBtn';
+      btn.style.display = 'inline-flex';
+      btn.style.flexDirection = 'column';
+      btn.style.alignItems = 'center';
+      btn.style.gap = '4px';
+      btn.style.minWidth = '92px';
+      btn.innerHTML = `<span style="font-size:30px;line-height:1;">${opt.emoji}</span><span style="font-size:11px;">${opt.name}</span>`;
+      btn.onclick = ()=>{
+        if(opt.name === puzzle.correct.name){
+          closeModal();
+          logMsg("The canvas settles into the frame — a perfect fit. Something about it feels wrong a second later.");
+          startPortraitGlitch();
+        } else {
+          puzzleFail("Wrong canvas — the room goes silent, then the air snaps back with a low, oppressive hum.");
+          closeModal();
+        }
+      };
+      modalBtns.appendChild(btn);
+    });
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'choiceBtn';
+    hintBtn.textContent = "💡 Need a hint?";
+    hintBtn.onclick = ()=>{ hintShown = true; render(); };
+    modalBtns.appendChild(hintBtn);
+  }
+  modalTitle.textContent = "The Portrait";
+  overlay.style.display = 'flex';
+  exitPointerLock();
+  render();
+}
+
+function startPortraitGlitch(){
+  logMsg("The portrait's eyes move. Then the frame is empty.", true);
+  if(typeof portraitEyes !== 'undefined') portraitEyes.forEach(eye=>{ eye.visible=true; eye.material.emissiveIntensity=3.4; });
+  if(typeof portraitEyeGlow !== 'undefined'){ portraitEyeGlow.visible=true; portraitEyeGlow.intensity=1.1; }
+  figureGroup.visible = true;
+  figureGroup.position.set(-2.2, 1.1, -9.3);
+  document.getElementById('vignette').classList.add('danger');
+  GameState.glitchActive = true;
+  const banner = document.getElementById('glitchBanner');
+  banner.textContent = "Get ready... it's about to move";
+  banner.style.display = 'block';
+  requestPointerLock(); // regain mouse-look + movement immediately so the player can actually run
+
+  const coverPoints = [
+    new THREE.Vector3(-11, 1.1, -8),
+    new THREE.Vector3(11, 1.1, -8.6),
+    new THREE.Vector3(13.6, 1.1, 2),
+    new THREE.Vector3(-13.6, 1.1, 3.5),
+    new THREE.Vector3(-10.5, 1.1, 7),
+  ];
+  const graceMs = 1400; // time for the player to reorient before it starts advancing/judging
+  const duration = 9000;
+  const start = performance.now();
+  let seenTime = 0;
+
+  function tick(){
+    if(GameState.ended){
+      figureGroup.visible = false;
+      banner.style.display = 'none';
+      GameState.glitchActive = false;
+      return;
+    }
+    const elapsed = performance.now() - start;
+    const t = elapsed - graceMs;
+    if(elapsed < graceMs){
+      banner.textContent = "Get ready — find cover behind another exhibit";
+      requestAnimationFrame(tick);
+      return;
+    }
+    if(t === 0 || (t>0 && t<20)){ banner.textContent = "Run to the Desk, Cabinet, Armor, or Clock — stand close to break line of sight"; }
+    if(t > duration || GameState.ended){
+      figureGroup.visible = false;
+      banner.style.display = 'none';
+      document.getElementById('vignette').classList.toggle('danger', GameState.lightsCut);
+      GameState.glitchActive = false;
+      if(seenTime > 2000){
+        logMsg("It reached you.", true);
+        loseLife();
+        doTimeSkip("the figure closed in.");
+      } else {
+        logMsg("You broke its line of sight long enough. It withdraws into the frame.");
+        GameState.composureBoosts++;
+        steadyHands = true;
+        GameState.stationsSolved["The Portrait"] = true;
+        logMsg("Composure boost earned: Steady Hands active for your next mistake.");
+        GameState.lore.push("Full Vision");
+      }
+      updateHUD();
+      return;
+    }
+    // figure slowly advances toward player unless the player has a wall/station between them (approx via distance to nearest cover point acting as a break-LOS proxy)
+    const toPlayer = playerPos.clone().sub(figureGroup.position);
+    const dist = toPlayer.length();
+    let nearCover = coverPoints.some(cp => playerPos.distanceTo(cp) < 2.0);
+
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    const toFigure = figureGroup.position.clone().sub(camera.position).normalize();
+    const facingIt = camDir.dot(toFigure) > 0.4;
+
+    if(!nearCover && dist > 0.9){
+      figureGroup.position.addScaledVector(toPlayer.normalize(), 0.009 * (facingIt?0.4:1)); // advances faster if you're NOT looking (classic "don't look away" inversion could be tuned)
+    }
+    if(facingIt && dist < 6){ seenTime += 16; }
+    if(dist < 1.0){
+      figureGroup.visible = false;
+      banner.style.display = 'none';
+      document.getElementById('vignette').classList.toggle('danger', GameState.lightsCut);
+      GameState.glitchActive = false;
+      logMsg("It reached you.", true);
+      loseLife();
+      doTimeSkip("caught in the open.");
+      updateHUD();
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+//// ---- Station 5: Vault — opens with the Brass Key earned from the Curator's Desk ----
+function openPuzzle_Vault(){
+  if(GameState.stationsSolved["The Vault"]){
+    openModal("The Vault", "The vault door hangs open. All that's left is to walk through.", [{label:"Close", action:closeModal}]);
+    return;
+  }
+  if(stationLocked("The Vault")){
+    openModal("The Vault", lockedMessage("The Vault"), [{label:"Close", action:closeModal}]);
+    return;
+  }
+  openModal("The Vault",
+    "You slide the Brass Key into the lock plate. Something deep in the mechanism turns, and with a heavy clunk the door swings loose. " +
+    "This is it — open the vault and leave, or take one more moment to be sure you understand what happened here.",
+    [
+      {label:"Read the last journal page, then go", action:()=>{
+        closeModal();
+        GameState.stationsSolved["The Vault"] = true;
+        GameState.lore.push("Curator's Final Entry");
+        logMsg("LORE: 'I couldn't save the collection. I hope someone finds this and knows I tried.'");
+        doTimeSkip("one last moment taken, to understand.");
+        updateHUD();
+        setTimeout(()=>{ if(!GameState.ended) endGame(true, "full"); }, 800);
+      }},
+      {label:"Bolt through the vault now", action:()=>{
+        closeModal();
+        GameState.stationsSolved["The Vault"] = true;
+        updateHUD();
+        setTimeout(()=>{ if(!GameState.ended) endGame(true, "fast"); }, 500);
+      }}
+    ]
+  );
+}
+
+//// ---- Bonus: The Mummy (optional atmosphere, no fragment, no time cost) ----
+let mummySeen = false;
+function openMummyEncounter(){
+  if(!mummySeen){
+    mummySeen = true;
+    openModal("Unidentified Remains",
+      "You lean in close to the glass. For a moment the wrapped figure looks almost peaceful — then its head twitches, just slightly, and its eyes catch a glint of red.",
+      [{label:"Step back quickly", action:()=>{
+        closeModal();
+        eyeFlash();
+        GameState.lore.push("The Watching Remains");
+        logMsg("Its eyes flare red for a second, then go dark again. Just old glass catching light. Probably.", true);
+      }}]
+    );
+  } else {
+    openModal("Unidentified Remains",
+      "The case is silent now. Whatever you saw earlier, it isn't moving.",
+      [{label:"Close", action:closeModal}]);
+  }
+}
+function eyeFlash(){
+  eyeMat.emissiveIntensity = 4.2;
+  document.getElementById('vignette').classList.add('danger');
+  setTimeout(()=>{
+    eyeMat.emissiveIntensity = 1.6;
+    document.getElementById('vignette').classList.toggle('danger', GameState.lightsCut);
+  }, 450);
+}
+
+//// ---------- PRESENTATION SYSTEMS (gameplay-independent) ----------
+let museumAudio = null;
+function initMuseumAudio(){
+  if(museumAudio || !window.AudioContext && !window.webkitAudioContext) return;
+  const AC=window.AudioContext||window.webkitAudioContext; const ac=new AC();
+  const master=ac.createGain(); master.gain.value=.018; master.connect(ac.destination);
+  const hum=ac.createOscillator(); const humGain=ac.createGain(); hum.type='sine'; hum.frequency.value=52; humGain.gain.value=.22; hum.connect(humGain).connect(master); hum.start();
+  const air=ac.createOscillator(); const airGain=ac.createGain(); air.type='triangle'; air.frequency.value=118; airGain.gain.value=.035; air.connect(airGain).connect(master); air.start();
+  museumAudio={ac,master,humGain,airGain};
+}
+function updateTimeAtmosphere(){
+  const p=Math.min(1,GameState.skipCount/6);
+  // Existing six skips drive only visual temperature, fog, and ambience.
+  const warm=new THREE.Color(0x4a4130), late=new THREE.Color(0x292d3b);
+  ambient.color.copy(warm).lerp(late,p*.65);
+  ambient.intensity=(GameState.lightsCut ? .06 : .28)*(1-p*.12);
+  scene.fog.density=.017 + p*.006;
+  if(museumAudio) museumAudio.master.gain.value=.018 + p*.006;
+}
+let debugEnabled=false, debugLast=0;
+function updateDebug(now, delta){
+  if(!debugEnabled || now-debugLast<250) return; debugLast=now;
+  const panel=document.getElementById('debugPanel');
+  panel.textContent=`DEBUG F3 | QUALITY ${GALLERY_QUALITY}\nFPS target: ${Math.round(1/Math.max(delta,.001))}\nDraw calls: ${renderer.info.render.calls}\nTriangles: ${renderer.info.render.triangles}\nObjects: ${scene.children.length}\nInteractive roots: ${interactables.length}\nTarget: ${currentTarget?currentTarget.name:'none'}\nRange: ${currentTarget?currentTarget.interactionDistance:'—'}`;
+}
+document.addEventListener('keydown',e=>{ if(e.code==='F3'){ debugEnabled=!debugEnabled; document.getElementById('debugPanel').style.display=debugEnabled?'block':'none'; } });
+
+//// ---------- MAIN LOOP ----------
+function animate(){
+  if(GameState.ended){ renderer.render(scene, camera); requestAnimationFrame(animate); return; }
+  const delta = Math.min(clock3.getDelta(), 0.1);
+  updateMovement(delta);
+  const moving = keys['KeyW']||keys['KeyS']||keys['KeyA']||keys['KeyD'];
+  const bob = moving && GameState.pointerLocked ? Math.sin(performance.now()*.010)*.012 : 0;
+  camera.position.y = playerPos.y + bob;
+  updateInteractionTarget();
+  const now = performance.now();
+  updateBeacons(now);
+  updateCinematicLighting(now);
+  updateTimeAtmosphere();
+  updateFlashlight();
+  if(clockPendulum && !GameState.ended) clockPendulum.rotation.z = Math.sin(now*0.0018)*0.09;
+
+  // Animate figure's menacing hands when active
+  if(GameState.glitchActive && figureGroup.userData.arms){
+    const time = performance.now() * 0.003;
+    figureGroup.userData.arms.forEach(arm => {
+      const hand = arm.userData.hand;
+      const side = arm.userData.side;
+      // Make hands reach forward and backward menacingly
+      hand.position.y = hand.userData.baseY + Math.sin(time + side)*0.15 + Math.cos(time*1.5)*0.08;
+      hand.position.z = Math.sin(time*1.2 + side)*0.2 + Math.cos(time)*0.15;
+      // Rotate hands in threatening way
+      hand.rotation.x = Math.sin(time + side*0.5)*0.4;
+      hand.rotation.z = side * (Math.sin(time*0.8)*0.3 + 0.3);
+      // Slight twitch motions
+      hand.rotation.y = Math.sin(time*2.1)*0.15;
+    });
+  }
+
+  // drift dust motes upward, loop back to floor
+  const moteAttr = moteGeo.attributes.position;
+  for(let mi2=0; mi2<MOTE_COUNT; mi2++){
+    let yv = moteAttr.array[mi2*3+1] + moteSpeed[mi2]*delta;
+    if(yv>ROOM_H-0.3) yv = 0;
+    moteAttr.array[mi2*3+1] = yv;
+    moteAttr.array[mi2*3] += Math.sin(performance.now()*0.0002+mi2)*0.0006;
+  }
+  moteAttr.needsUpdate = true;
+  if(cinematicLights.length) moteMat.opacity = 0.28 + Math.min(0.22, cinematicLights.reduce((sum,x)=>sum+x.light.intensity,0)*0.006);
+  updateDebug(now, delta);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+
+//// ---------- START ----------
+document.getElementById('startBtn').onclick = ()=>{
+  playBlinkTransition(()=>{
+    initMuseumAudio();
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('blinkTop').style.height = '0%';
+    document.getElementById('blinkBottom').style.height = '0%';
+    updateHUD();
+    updateClockHands();
+    logMsg("The door seals behind you. 5:00 PM.");
+    requestPointerLock();
+
+    // The control legend from the opening screen briefly repeats itself here,
+    // then fades away so nothing from that screen lingers during play.
+    const hint = document.getElementById('lockHint');
+    setTimeout(()=>{ hint.style.opacity = '0'; }, 7000);
+    setTimeout(()=>{ hint.style.display = 'none'; }, 8300);
+  });
+};
+
+function playBlinkTransition(onDone){
+  const top = document.getElementById('blinkTop');
+  const bot = document.getElementById('blinkBottom');
+  let blinks = 0;
+  function close(cb){
+    top.style.transition = bot.style.transition = 'height 0.16s ease-in';
+    top.style.height = bot.style.height = '52%';
+    setTimeout(cb, 170);
+  }
+  function open(cb){
+    top.style.transition = bot.style.transition = 'height 0.22s ease-out';
+    top.style.height = bot.style.height = '0%';
+    setTimeout(cb, 230);
+  }
+  function cycle(){
+    blinks++;
+    close(()=>{
+      if(blinks >= 2){ onDone(); return; }
+      setTimeout(()=> open(cycle), 90);
+    });
+  }
+  cycle();
+}
+
+
+// ---- Intro cutscene: a four-shot first-person sequence — entering the
+// museum, exploring it, noticing a painting, then the doppelganger reveal —
+// followed by a color glitch and a double blink into the rules screen. ----
+let introAC = null;
+function introAudio(){
+  if(!introAC){ try{ introAC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  return introAC;
+}
+function introTone(freq,dur,type,vol,delay){
+  const ac = introAudio(); if(!ac) return;
+  const t0 = ac.currentTime + (delay||0);
+  const osc = ac.createOscillator(), g = ac.createGain();
+  osc.type = type||'sine'; osc.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol||0.08, t0+0.05);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0); osc.stop(t0+dur+0.05);
+}
+function introNoise(dur,vol){
+  const ac = introAudio(); if(!ac) return;
+  const bufSize = ac.sampleRate*dur;
+  const buf = ac.createBuffer(1, bufSize, ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++) data[i] = (Math.random()*2-1) * (1 - i/bufSize);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const g = ac.createGain(); g.gain.value = vol||0.1;
+  src.connect(g).connect(ac.destination);
+  src.start();
+}
+function introFootsteps(count){
+  for(let i=0;i<count;i++) introTone(90+Math.random()*30, 0.09, 'square', 0.03, i*0.32);
+}
+
+const introShots = [
+  { caption:"You slip in through the side door after closing hours. The gallery breathes around you — old wood, old dust, a held silence.",
+    onEnter:()=>{ introFootsteps(3); introTone(60,1.4,'sine',0.02,0.1); } },
+  { caption:"You wander the empty halls, half-listening to your own footsteps echo off the marble.",
+    onEnter:()=>{ introFootsteps(4); } },
+  { caption:"One painting stops you. A figure, alone, in a room with this floor. This ceiling. This exact angle of shadow.",
+    onEnter:()=>{ introTone(220,1.8,'triangle',0.05,0.1); frameReveal(false); } },
+  { caption:"You look down at your own feet, then back at the frame. The figure in the painting hasn't moved. It's standing where you're standing.",
+    onEnter:()=>{ introTone(140,2.2,'sawtooth',0.045,0.1); introNoise(1.4,0.02); frameReveal(true); } },
+];
+
+function frameReveal(zoom){
+  const frame = document.getElementById('introFrame');
+  frame.style.opacity = 1;
+  frame.classList.toggle('zoomed', !!zoom);
+}
+
+function runIntro(){
+  const btn = document.getElementById('introContinue');
+  let i = 0;
+
+  function showShot(){
+    document.querySelectorAll('.introShot').forEach((el,idx)=>{
+      el.classList.toggle('active', idx===i);
+    });
+    document.getElementById('cap'+(i+1)).textContent = introShots[i].caption;
+    if(i<2) document.getElementById('introFrame').style.opacity = 0;
+    if(introShots[i].onEnter) introShots[i].onEnter();
+    btn.style.display = 'inline-block';
+    btn.textContent = (i === introShots.length - 1) ? "..." : "CONTINUE";
+  }
+
+  btn.onclick = ()=>{
+    i++;
+    if(i < introShots.length){
+      showShot();
+    } else {
+      glitchOut();
+    }
+  };
+
+  function glitchOut(){
+    btn.style.display = 'none';
+    introNoise(0.6,0.09);
+    const flash = document.getElementById('introGlitchOverlay');
+    flash.classList.add('colorGlitch');
+    let flickers = 0;
+    const flickerId = setInterval(()=>{
+      flash.style.opacity = (flickers % 2 === 0) ? '0.9' : '0';
+      flickers++;
+      if(flickers > 7){
+        clearInterval(flickerId);
+        flash.style.opacity = '1';
+        setTimeout(()=>{
+          document.getElementById('introScene').style.display = 'none';
+          flash.classList.remove('colorGlitch');
+          flash.style.opacity = '0';
+          // Double blink into the title & rules screen.
+          playBlinkTransition(()=>{
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('blinkTop').style.height = '0%';
+            document.getElementById('blinkBottom').style.height = '0%';
+          });
+        }, 260);
+      }
+    }, 90);
+  }
+
+  showShot();
+}
+
+runIntro();
+animate();
+</script>
+</body>
+</html>
