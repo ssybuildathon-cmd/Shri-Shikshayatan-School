@@ -1,0 +1,4 @@
+   #crosshair.hot{width:9px;height:9px;margin:-4.5px 0 0 -4.5px;background:transparent;border:1px solid rgba(255,220,150,.95);box-shadow:0 0 10px rgba(255,196,90,.7)}
++  /* Cyberpunk accent: the one cold, synthetic light source in the room */
++  body.cyanLight #crosshair{background:rgba(143,240,255,0.9);box-shadow:0 0 8px rgba(120,230,255,.8)}
++  body.cyanLight #hud .panel, body.cyanLight #objectivePanel{border-color:#3fb8c9;box-shadow:0 0 14px rgba(80,220,255,0.25)}
