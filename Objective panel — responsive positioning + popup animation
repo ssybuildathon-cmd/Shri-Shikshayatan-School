@@ -1,0 +1,32 @@
+   #objectivePanel{
+-    position:fixed;top:14px;right:14px;z-index:20;max-width:300px;
++    position:fixed;top:14px;left:max(14px,calc(100% - 314px));z-index:20;width:min(300px,calc(100vw - 28px));max-width:300px;box-sizing:border-box;
+     background:rgba(10,8,5,0.78);border:1px solid #6b5a3a;padding:12px 16px;
+-    box-shadow:0 0 14px rgba(0,0,0,0.6);
++    box-shadow:0 0 14px rgba(0,0,0,0.6);transform:translate(0,0) scale(1);transform-origin:center center;
++    transition:top .9s cubic-bezier(.22,.8,.2,1),right .9s cubic-bezier(.22,.8,.2,1),left .9s cubic-bezier(.22,.8,.2,1),
++      transform .9s cubic-bezier(.22,.8,.2,1),max-width .9s cubic-bezier(.22,.8,.2,1),width .9s cubic-bezier(.22,.8,.2,1),
++      padding .9s cubic-bezier(.22,.8,.2,1),opacity .45s ease,box-shadow .9s ease;
+   }
+   #objectivePanel h3{margin:0 0 6px 0;font-size:12px;letter-spacing:2px;color:#b89b5e;text-transform:uppercase;border-bottom:1px solid #4a3d22;padding-bottom:4px;}
+   #objectiveText{font-size:13px;line-height:1.5;color:#e8d9ad;}
++  #objectivePanel.objective-notice{left:50%;top:50%;width:min(700px,calc(100vw - 32px));max-width:700px;
++    padding:24px 28px;transform:translate(-50%,-50%) scale(.85);opacity:0;pointer-events:none;
++    box-shadow:0 0 30px rgba(0,0,0,.82),0 0 12px rgba(184,155,94,.16);}
++  #objectivePanel.objective-notice.objective-notice-visible{opacity:1;transform:translate(-50%,-50%) scale(1);}
++  #objectivePanel.objective-notice h3{font-size:28px;line-height:1.15;text-align:center;padding-bottom:10px;margin-bottom:14px;
++    opacity:0;transform:translateY(-8px);transition:opacity .35s ease,transform .35s ease;}
++  #objectivePanel.objective-notice #objectiveText{font-size:22px;line-height:1.5;text-align:center;opacity:0;transform:translateY(14px);
++    transition:opacity .55s ease,transform .55s ease;}
++  #objectivePanel.objective-notice.objective-notice-label h3{opacity:1;transform:translateY(0);}
++  #objectivePanel.objective-notice.objective-notice-text #objectiveText{opacity:1;transform:translateY(0);}
++  #vignette.objective-notice-vignette{box-shadow:inset 0 0 220px 80px rgba(0,0,0,.72);}
++  @media (max-width:600px){
++    #objectivePanel.objective-notice{width:calc(100vw - 24px);padding:20px 16px;}
++    #objectivePanel.objective-notice h3{font-size:24px;}
++    #objectivePanel.objective-notice #objectiveText{font-size:18px;}
++  }
++  @media (prefers-reduced-motion: reduce){
++    #objectivePanel{transition:none;}
++    #objectivePanel.objective-notice h3,#objectivePanel.objective-notice #objectiveText{transition:none;}
++  }
