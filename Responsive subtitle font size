@@ -1,0 +1,7 @@
+   .temporalBroadcast-subtitle{
+     position:absolute; bottom:11%; left:50%; transform:translateX(-50%); width:82%; max-width:660px;
+-    text-align:center; color:#ddd8c9; font-size:16px; line-height:1.55; letter-spacing:.4px;
++    text-align:center; color:#ddd8c9; font-size:clamp(18px,1.7vw,26px); line-height:1.55; letter-spacing:.4px;
+     text-shadow:0 0 7px rgba(0,0,0,.85), 1px 0 rgba(255,30,60,.14), -1px 0 rgba(50,210,255,.12);
+     opacity:0; transition:opacity .3s ease;
+   }
