@@ -51,8 +51,8 @@ the items are received and collected)
 
 6. Credits and asset notes:
 
-= Three.js r128 for 3D rendering, under the MIT License.
-= Nosifer and Special Elite from Google Fonts, loaded at runtime.
-= Embedded clock, brass, marble, environment, and audio assets supplied with the HTML build.
-= Procedural geometry, textures, noise, static, and Web Audio effects created in the source.
-= Additional 3D models: Sketchfab
+- Three.js r128 for 3D rendering, under the MIT License.
+- Nosifer and Special Elite from Google Fonts, loaded at runtime.
+- Embedded clock, brass, marble, environment, and audio assets supplied with the HTML build.
+- Procedural geometry, textures, noise, static, and Web Audio effects created in the source.
+- Additional 3D models: Sketchfab
