@@ -38,17 +38,18 @@ the items are received and collected)
 - The objects collected is put into a exhibit.
 4. If the player is able to finish the game in time before 6 or has the lives left
 - They will be able to get out
-Single-file HTML project; no build step required
-Vanilla JavaScript, CSS, and Three.js r128
-WebGL rendering with custom geometry, fog, lighting, film grain, and glitch effects
-Web Audio API for ambience, music, static, warning tones, and chase audio
-Pointer Lock API for first-person mouse-look
-Procedural puzzles and procedural audio effects
-Reduced-motion support through prefers-reduced-motion
-Most textures and audio are embedded as data: URIs
+Developer Tools:
+-Single-file HTML project; no build step required
+-Vanilla JavaScript, CSS, and Three.js r128
+-WebGL rendering with custom geometry, fog, lighting, film grain, and glitch effects
+-Web Audio API for ambience, music, static, warning tones, and chase audio
+-Pointer Lock API for first-person mouse-look
+-Procedural puzzles and procedural audio effects
+-Reduced-motion support through prefers-reduced-motion
+-Most textures and audio are embedded as data: URIs
 Credits and asset notes:
-Three.js r128 for 3D rendering, under the MIT License.
-Nosifer and Special Elite from Google Fonts, loaded at runtime.
-Embedded clock, brass, marble, environment, and audio assets supplied with the HTML build.
-Procedural geometry, textures, noise, static, and Web Audio effects created in the source.
-Additional 3D models: Sketchfab
+=Three.js r128 for 3D rendering, under the MIT License.
+=Nosifer and Special Elite from Google Fonts, loaded at runtime.
+=Embedded clock, brass, marble, environment, and audio assets supplied with the HTML build.
+=Procedural geometry, textures, noise, static, and Web Audio effects created in the source.
+=Additional 3D models: Sketchfab
