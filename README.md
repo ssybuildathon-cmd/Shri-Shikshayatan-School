@@ -39,7 +39,7 @@ the items are received and collected)
 4. If the player is able to finish the game in time before 6 or has the lives left
 - They will be able to get out
 
-- Developer Tools:
+5. Developer Tools:
 - single-file HTML project; no build step required
 - Vanilla JavaScript, CSS, and Three.js r128
 - WebGL rendering with custom geometry, fog, lighting, film grain, and glitch effects
@@ -49,7 +49,7 @@ the items are received and collected)
 - Reduced-motion support through prefers-reduced-motion
 - Most textures and audio are embedded as data: URIs
 
-- Credits and asset notes:
+6. Credits and asset notes:
 
 = Three.js r128 for 3D rendering, under the MIT License.
 = Nosifer and Special Elite from Google Fonts, loaded at runtime.
