@@ -1,7 +1,7 @@
 # Shri-Shikshayatan-School
 Genesis 2026 Class: 9-12 Buildathon
 ESCAPE: THE HOLLOW GALLERY
-A short first-person psychological horror escape game set in a museum that should have been empty.
+-A short first-person psychological horror escape game set in a museum that should have been empty.
 At 5:00 PM, the gallery doors seal. You have six ten-minute skips to solve five linked puzzles, reach the vault, and get out before 6:00 PM.
 SET UP:
 1. THE INTRO SCENE(A video will get played)-
