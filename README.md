@@ -6,24 +6,24 @@ At 5:00 PM, the gallery doors seal. You have six ten-minute skips to solve five 
 SET UP:
 1. THE INTRO SCENE(A video will get played)-
 Before the main game begins, an emergency broadcast interrupts the screen. It reports several missing people and an unidentified temporal anomaly, described by witnesses as a “hole in time.” The broadcast warns you to:
-Not return to the place you came from
-Not follow voices belonging to people you know
-Not trust clocks, photographs, or written dates
-Not assume another person is from your time
-Never approach anything that looks like yourself
-Not let the clock reach 6:00 PM
+- Not return to the place you came from
+- Not follow voices belonging to people you know
+- Not trust clocks, photographs, or written dates
+- Not assume another person is from your time
+- Never approach anything that looks like yourself
+- Not let the clock reach 6:00 PM
 This is a scripted, glitching in-browser cutscene, not a separate video file. It uses animated static, timestamp drift, scanlines, warning cards, generated audio, and a Space prompt to skip it.
 - a screen appears where the name of the game, the rules are shown
--the next interface from the player’s view, and a motion of blinking twice.
--the player has now entered the game
+- the next interface from the player’s view, and a motion of blinking twice.
+- the player has now entered the game
 2. -The player realize that he\she has been trapped. And to get out they need to solve
 the puzzles.
-Display Cabinet: identify genuine gems from randomized equations to earn the UV Flashlight.
-Grandfather Clock: use the flashlight and clues to set the correct time; receive a Vault Map Fragment.
-Numbered Dial Lock: arrange randomized dials in the correct order; receive the Dial Key.
-Curator’s Desk: solve a riddle about the drawer seal; receive the Brass Key.
-The Portrait: Entity encounter. Face the watcher
-The Vault: use the Brass Key and decide whether to leave immediately or read the curator’s final entry first.
+- Display Cabinet: identify genuine gems from randomized equations to earn the UV Flashlight.
+- Grandfather Clock: use the flashlight and clues to set the correct time; receive a Vault Map Fragment.
+- Numbered Dial Lock: arrange randomized dials in the correct order; receive the Dial Key.
+- Curator’s Desk: solve a riddle about the drawer seal; receive the Brass Key.
+- The Portrait: Entity encounter. Face the watcher
+- The Vault: use the Brass Key and decide whether to leave immediately or read the curator’s final entry first.
 3. BACKGROUND
 - Time is ticking from 5 to 6
 - At 6 the museum closes
